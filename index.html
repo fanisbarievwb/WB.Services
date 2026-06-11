@@ -299,6 +299,15 @@
                 resultBox.classList.remove('active');
             }
         }
+if (selectedData) {
+    // ... ваш код отображения данных ...
+    
+    document.getElementById('wrapper').classList.add('has-result'); // Добавьте эту строку
+    resultBox.classList.add('active');
+} else {
+    document.getElementById('wrapper').classList.remove('has-result'); // Добавьте эту строку
+    resultBox.classList.remove('active');
+}
     </script>
 
 </body>
