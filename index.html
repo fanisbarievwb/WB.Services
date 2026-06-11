@@ -6,94 +6,147 @@
     <title>Экстренные контакты</title>
     <style>
         :root {
-            --bg-color: #ffffff;
-            --text-color: #111111;
-            --accent-color: #0070f3;
-            --border-color: #eaeaea;
-            --muted-color: #666666;
+            --bg-color: #f7f7f9;
+            --card-bg: #ffffff;
+            --text-color: #1a1a1a;
+            --accent-color: #000000; /* Строгий черный акцент вместо синего */
+            --border-color: #e5e7eb;
+            --muted-color: #71717a;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Полная центровка по вертикали и горизонтали */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            max-width: 500px;
-            margin: 100px auto padding;
-            padding: 0 20px;
-            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Минималистичная карточка-контейнер */
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 440px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 0, 0, 0.02);
         }
 
         h1 {
-            font-size: 1.5rem;
+            font-size: 1.35rem;
             font-weight: 600;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
             letter-spacing: -0.02em;
+            text-align: center;
         }
 
+        /* Стилизация выпадающего списка */
         .select-wrapper {
             position: relative;
+            margin-bottom: 0; /* Меняется динамически при появлении контента */
+            transition: margin-bottom 0.3s ease;
+        }
+        
+        .select-wrapper.has-result {
             margin-bottom: 32px;
         }
 
         select {
             width: 100%;
-            padding: 12px 16px;
-            font-size: 1rem;
+            padding: 14px 20px;
+            font-size: 0.95rem;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background-color: transparent;
+            border-radius: 12px;
+            background-color: var(--card-bg);
             appearance: none;
             outline: none;
             cursor: pointer;
-            transition: border-color 0.2s ease;
+            color: var(--text-color);
+            transition: all 0.2s ease;
         }
 
         select:focus {
             border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
         }
 
+        /* Изящная стрелочка */
         .select-wrapper::after {
-            content: "↓";
+            content: "";
             position: absolute;
-            right: 16px;
+            right: 20px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--muted-color);
+            border: 4px solid transparent;
+            border-top-color: var(--muted-color);
             pointer-events: none;
-            font-size: 0.8rem;
+            transition: transform 0.2s ease;
+        }
+        
+        select:focus + .select-wrapper::after {
+            transform: translateY(-75%) rotate(180deg);
         }
 
+        /* Блок с результатом и анимацией плавного появления */
         .result-box {
             border-top: 1px solid var(--border-color);
-            padding-top: 24px;
+            padding-top: 28px;
             display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
 
         .result-box.active {
             display: block;
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
             color: var(--muted-color);
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            font-weight: 500;
         }
 
         .value {
             font-size: 1.1rem;
             font-weight: 500;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            color: var(--text-color);
         }
 
+        .value:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Красивые кликабельные контакты */
         .value a {
-            color: var(--accent-color);
+            color: var(--text-color);
             text-decoration: none;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 2px;
+            transition: border-color 0.2s ease;
         }
 
         .value a:hover {
-            text-decoration: underline;
+            border-bottom-color: var(--accent-color);
         }
     </style>
 </head>
@@ -101,11 +154,16 @@
 
     <h1>Что произошло?</h1>
 
-    <div class="select-wrapper">
-        <select id="incidentSelect" onchange="showDetails()">
-            <option value="" disabled selected>Выберите ситуацию из списка...</option>
-            <!-- Данные будут загружаться сюда автоматически -->
-        </select>
+        <div class="container">
+        <h1>Что произошло?</h1>
+        <div class="select-wrapper" id="wrapper">
+            <select id="incidentSelect" onchange="showDetails()">
+                <!-- опции -->
+            </select>
+        </div>
+        <div id="resultBox" class="result-box">
+            <!-- результат -->
+        </div>
     </div>
 
     <div id="resultBox" class="result-box">
