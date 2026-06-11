@@ -1,8 +1,89 @@
-"use client"
-import React, { useState } from 'react';
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RWB Службы</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: monospace, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 100px;
+            margin: 0;
+        }
+        h1 {
+            border-bottom: 3px solid #b40000;
+            padding-bottom: 10px;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+            font-size: 28px;
+        }
+        select {
+            background-color: #111;
+            color: #fff;
+            border: 1px solid #b40000;
+            padding: 15px;
+            font-size: 16px;
+            width: 320px;
+            cursor: pointer;
+            outline: none;
+            margin-bottom: 30px;
+            font-family: monospace;
+        }
+        #resultBox {
+            border: 1px solid #333;
+            background-color: #1a1a1a;
+            padding: 20px;
+            width: 280px;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .row {
+            display: flex;
+            flex-direction: column;
+        }
+        .label {
+            color: #b40000;
+            font-size: 13px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .value {
+            font-size: 18px;
+            font-weight: bold;
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body>
 
-// Замените этот массив на данные из вашего Excel, переведенные в формат JSON
-const data =[
+    <h1>ВЫБОР СЛУЖБЫ</h1>
+    
+    <select id="problemSelect" onchange="showData()">
+        <option value="">-- ЧТО СЛУЧИЛОСЬ? --</option>
+    </select>
+
+    <div id="resultBox">
+        <div class="row">
+            <span class="label">Служба:</span>
+            <span class="value" id="serviceValue"></span>
+        </div>
+        <div class="row">
+            <span class="label">Контакты:</span>
+            <span class="value" id="contactsValue"></span>
+        </div>
+    </div>
+
+    <script>
+        // Вставьте сюда ваши данные из Excel
+        const data = [
 {"problem":"Не работает погрузчик, ричтрак, тележка (рохля, штабелёр)","service":"Механики (СГМ)","contact":"Русин Александр Викторович, \n +7 915-014-12-66 \n Барышев Алексей Викторович, \n +7 968 356 21 01"}
 ,
 {"problem":"Не открываются грузовые или доковые ворота, уравнительная площадка","service":"Механики (СГМ)","contact":"Русин Александр Викторович, \n +7 915-014-12-66 \n Барышев Алексей Викторович, \n +7 968 356 21 01"}
@@ -69,97 +150,34 @@ const data =[
 ,
 {"problem":"Нужно подключить или перепрограммировать СКУД (замки, контроллеры, слаботочка)","service":"Отдел IT","contact":"Литвинов Виталий Васильевич, \n +7 958 838 80 75"}
 
-]
+];
 
+        const select = document.getElementById('problemSelect');
+        const resultBox = document.getElementById('resultBox');
+        const serviceValue = document.getElementById('serviceValue');
+        const contactsValue = document.getElementById('contactsValue');
 
-export default function RWBSelector() {
-  const [selectedItem, setSelectedItem] = useState(null);
+        // Заполнение выпадающего списка
+        data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = item.problem;
+            select.appendChild(option);
+        });
 
-  const handleChange = (e) => {
-    const selectedProblem = e.target.value;
-    const found = data.find(item => item.problem === selectedProblem);
-    setitem(found || null);
-  };
+        // Функция обработки выбора
+        function showData() {
+            const selectedId = select.value;
+            const found = data.find(item => item.id == selectedId);
 
-  return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>ВЫБОР СЛУЖБЫ</h1>
-      
-      <select onChange={handleChange} style={styles.dropdown}>
-        <option value="">-- Что случилось? --</option>
-        {data.map((item) => (
-          <option key={item.id} value={item.problem}>
-            {item.problem}
-          </option>
-        ))}
-      </select>
-
-      {selectedItem && (
-        <div style={styles.resultBox}>
-          <div style={styles.row}>
-            <span style={styles.label}>Служба:</span>
-            <span style={styles.value}>{selectedItem.service}</span>
-          </div>
-          <div style={styles.row}>
-            <span style={styles.label}>Контакты:</span>
-            <span style={styles.value}>{selectedItem.contacts}</span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-const styles = {
-  container: {
-    backgroundColor: '#000000',
-    color: '#ffffff',
-    fontFamily: 'monospace, sans-serif',
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    paddingTop: '100px',
-  },
-  title: {
-    borderBottom: '3px solid #b40000',
-    paddingBottom: '10px',
-    marginBottom: '40px',
-    letterSpacing: '2px',
-  },
-  dropdown: {
-    backgroundColor: '#111',
-    color: '#fff',
-    border: '1px solid #b40000',
-    padding: '15px',
-    fontSize: '16px',
-    width: '300px',
-    cursor: 'pointer',
-    outline: 'none',
-    marginBottom: '30px',
-  },
-  resultBox: {
-    border: '1px solid #333',
-    backgroundColor: '#1a1a1a',
-    padding: '20px',
-    width: '300px',
-    marginTop: '20px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '15px',
-  },
-  row: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  label: {
-    color: '#b40000',
-    fontSize: '14px',
-    marginBottom: '5px',
-    textTransform: 'uppercase',
-  },
-  value: {
-    fontSize: '18px',
-    fontWeight: 'bold',
-  }
-};
+            if (found) {
+                serviceValue.textContent = found.service;
+                contactsValue.textContent = found.contacts;
+                resultBox.style.display = 'flex';
+            } else {
+                resultBox.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
