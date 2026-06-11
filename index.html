@@ -3,206 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Справочник служб</title>
+    <title>Экстренные контакты</title>
     <style>
         :root {
-            --bg-color: #f9f9f9;
-            --text-color: #333;
+            --bg-color: #ffffff;
+            --text-color: #111111;
             --accent-color: #0070f3;
             --border-color: #eaeaea;
+            --muted-color: #666666;
         }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            width: 100%;
             max-width: 500px;
-            text-align: center;
+            margin: 100px auto padding;
+            padding: 0 20px;
+            line-height: 1.5;
         }
-        h2 {
-            margin-top: 0;
-            font-weight: 500;
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
         }
+
+        .select-wrapper {
+            position: relative;
+            margin-bottom: 32px;
+        }
+
         select {
             width: 100%;
-            padding: 12px;
+            padding: 12px 16px;
+            font-size: 1rem;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 16px;
-            background: white;
+            border-radius: 8px;
+            background-color: transparent;
+            appearance: none;
             outline: none;
             cursor: pointer;
-            transition: border-color 0.2s;
-            appearance: none;
-            background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://w3.org"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
-            background-repeat: no-repeat;
-            background-position: right 12px center;
+            transition: border-color 0.2s ease;
         }
+
         select:focus {
             border-color: var(--accent-color);
         }
+
+        .select-wrapper::after {
+            content: "↓";
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted-color);
+            pointer-events: none;
+            font-size: 0.8rem;
+        }
+
         .result-box {
-            margin-top: 30px;
-            padding: 20px;
-            background: var(--bg-color);
-            border-radius: 8px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
             display: none;
-            text-align: left;
         }
-        .result-row {
-            margin-bottom: 15px;
-        }
-        .result-row:last-child {
-            margin-bottom: 0;
-        }
-        .label {
-            font-size: 13px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+
+        .result-box.active {
             display: block;
+        }
+
+        .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted-color);
             margin-bottom: 4px;
         }
+
         .value {
-            font-size: 16px;
+            font-size: 1.1rem;
             font-weight: 500;
-            word-break: break-all;
+            margin-bottom: 20px;
+        }
+
+        .value a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .value a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Помощь и контакты</h2>
-    
-    <select id="problemSelect" onchange="showDetails()">
-        <option value="" disabled selected>Выберите ситуацию...</option>
-        <!-- Опции сформируются автоматически через JS -->
-    </select>
+    <h1>Что произошло?</h1>
 
-    <div id="result" class="result-box">
-        <div class="result-row">
-            <span class="label">Служба</span>
-            <span id="serviceValue" class="value"></span>
-        </div>
-        <div class="result-row">
-            <span class="label">Контакты</span>
-            <span id="contactsValue" class="value"></span>
-        </div>
+    <div class="select-wrapper">
+        <select id="incidentSelect" onchange="showDetails()">
+            <option value="" disabled selected>Выберите ситуацию из списка...</option>
+            <!-- Данные будут загружаться сюда автоматически -->
+        </select>
     </div>
-</div>
 
-<script>
-    // Замените данные в этом массиве на данные из ваших 3 колонок таблицы Excel
-    const database = [
-{"problem":"Не работает погрузчик, ричтрак, тележка (рохля, штабелёр)","service":"Механики (СГМ)","contact":"Русин Александр Викторович, \n +7 915-014-12-66 \n Барышев Алексей Викторович, \n +7 968 356 21 01"}
-,
-{"problem":"Не открываются грузовые или доковые ворота, уравнительная площадка","service":"Механики (СГМ)","contact":"Русин Александр Викторович, \n +7 915-014-12-66 \n Барышев Алексей Викторович, \n +7 968 356 21 01"}
-,
-{"problem":"Не заряжается техника, проблема с зарядной станцией или аккумулятором","service":"Механики (СГМ)","contact":"Русин Александр Викторович, \n +7 915-014-12-66 \n Барышев Алексей Викторович, \n +7 968 356 21 01"}
-,
-{"problem":"Не работает пресс, шредер, компактор","service":"Механики (СГМ)","contact":"Русин Александр Викторович, \n +7 915-014-12-66 \n Барышев Алексей Викторович, \n +7 968 356 21 01"}
-,
-{"problem":"Не работает лифт в столовой","service":"Механики (СГМ)","contact":"Русин Александр Викторович, \n +7 915-014-12-66 \n Барышев Алексей Викторович, \n +7 968 356 21 01"}
-,
-{"problem":"Не работает лифт или подъёмник на мезонине, сортер, транспортёр","service":"Конструкт. бюро (КБ)","contact":"Тихонюк Дмитрий Геннадьевич, \n +7 901 747 24 74"}
-,
-{"problem":"Нет электричества, не работает розетка, обесточено оборудование","service":"Эксплуатация (СЭ)","contact":"Илья Александрович Орлов, \n +7 919 761 94 70\n Цветков Дмитрий Иосифович, \n +7 903 711 40 21"}
-,
-{"problem":"Не горит свет (рабочий, аварийный, уличный, на мезонине)","service":"Эксплуатация (СЭ)","contact":"Илья Александрович Орлов, \n +7 919 761 94 70\n Цветков Дмитрий Иосифович, \n +7 903 711 40 21"}
-,
-{"problem":"Душно, жарко или холодно — не работает вентиляция или кондиционер","service":"Эксплуатация (СЭ)","contact":"Илья Александрович Орлов, \n +7 919 761 94 70\n Цветков Дмитрий Иосифович, \n +7 903 711 40 21"}
-,
-{"problem":"Не греет отопление, не работает тепловая завеса или тепловентилятор","service":"Эксплуатация (СЭ)","contact":"Илья Александрович Орлов, \n +7 919 761 94 70\n Цветков Дмитрий Иосифович, \n +7 903 711 40 21"}
-,
-{"problem":"Не работает рукосушилка","service":"Эксплуатация (СЭ)","contact":"Илья Александрович Орлов, \n +7 919 761 94 70\n Цветков Дмитрий Иосифович, \n +7 903 711 40 21"}
-,
-{"problem":"Засор или перелив наружной / ливневой канализации","service":"Эксплуатация (СЭ)","contact":"Илья Александрович Орлов, \n +7 919 761 94 70\n Цветков Дмитрий Иосифович, \n +7 903 711 40 21"}
-,
-{"problem":"Нужно подключить новое оборудование к электричеству","service":"Эксплуатация (СЭ)","contact":"Илья Александрович Орлов, \n +7 919 761 94 70\n Цветков Дмитрий Иосифович, \n +7 903 711 40 21"}
-,
-{"problem":"Повреждён мезонин, стеллаж, полка, лестница, ограждение мезонина","service":"Мезонин (СЭМ)","contact":"Егор Александрович Калинин, \n +7 925 208 88 29 \n Ростов Вячеслав Сергеевич,\n +7 977 830 24 36"}
-,
-{"problem":"Сбит отбойник, защита стойки или ловушка на мезонине","service":"Мезонин (СЭМ)","contact":"Егор Александрович Калинин, \n +7 925 208 88 29 \n Ростов Вячеслав Сергеевич,\n +7 977 830 24 36"}
-,
-{"problem":"Нужна проверка / протяжка конструкций, плановое ТО мезонина","service":"Мезонин (СЭМ)","contact":"Егор Александрович Калинин, \n +7 925 208 88 29 \n Ростов Вячеслав Сергеевич,\n +7 977 830 24 36"}
-,
-{"problem":"Не закрывается дверь, сломан доводчик или магнит на мезонине","service":"Мезонин (СЭМ)","contact":"Егор Александрович Калинин, \n +7 925 208 88 29 \n Ростов Вячеслав Сергеевич,\n +7 977 830 24 36"}
-,
-{"problem":"Протекает труба, засор в санузле, не работает кран, унитаз, водонагреватель","service":"Строит. служба (РСС)","contact":"Сергеев Александр Александрович, \n +7 977 299 68 77\n Графский Александр Юрьевич, \n +7 996 597 01 08"}
-,
-{"problem":"Повреждён пол, стена, дверь, окно, плитка","service":"Строит. служба (РСС)","contact":"Сергеев Александр Александрович, \n +7 977 299 68 77\n Графский Александр Юрьевич, \n +7 996 597 01 08"}
-,
-{"problem":"Сломана мебель — стол, стул, шкаф","service":"Строит. служба (РСС)","contact":"Сергеев Александр Александрович, \n +7 977 299 68 77\n Графский Александр Юрьевич, \n +7 996 597 01 08"}
-,
-{"problem":"Сбит отбойник у колонны, шкафа, ворот или оборудования","service":"Строит. служба (РСС)","contact":"Сергеев Александр Александрович, \n +7 977 299 68 77\n Графский Александр Юрьевич, \n +7 996 597 01 08"}
-,
-{"problem":"Проблема на территории — яма в асфальте, разметка, знак, ограждение","service":"Строит. служба (РСС)","contact":"Сергеев Александр Александрович, \n +7 977 299 68 77\n Графский Александр Юрьевич, \n +7 996 597 01 08"}
-,
-{"problem":"Не работает турникет или шлагбаум (механика)","service":"Строит. служба (РСС)","contact":"Сергеев Александр Александрович, \n +7 977 299 68 77\n Графский Александр Юрьевич, \n +7 996 597 01 08"}
-,
-{"problem":"Нужен косметический ремонт помещения","service":"Строит. служба (РСС)","contact":"Сергеев Александр Александрович, \n +7 977 299 68 77\n Графский Александр Юрьевич, \n +7 996 597 01 08"}
-,
-{"problem":"Не закрывается дверь в складе, сломан доводчик или магнит","service":"Строит. служба (РСС)","contact":"Сергеев Александр Александрович, \n +7 977 299 68 77\n Графский Александр Юрьевич, \n +7 996 597 01 08"}
-,
-{"problem":"Грязно, нужна уборка, не вывезли мусор или упаковку","service":"АХО","contact":"Галстян Ашот Иличевич\n +7 901 908 91 17"}
-,
-{"problem":"Грызуны или насекомые — нужна дезинфекция / дератизация","service":"АХО","contact":"Галстян Ашот Иличевич\n +7 901 908 91 17"}
-,
-{"problem":"Не работает поломоечная машина","service":"АХО","contact":"Галстян Ашот Иличевич\n +7 901 908 91 17"}
-,
-{"problem":"Сработала или неисправна пожарная сигнализация, оповещение","service":"Служба ПБ","contact":"Лебедев Михаил Викторович, \n +7 962 936 26 36"}
-,
-{"problem":"Проблема с пожарным краном, огнетушителем, пожарным шкафом","service":"Служба ПБ","contact":"Лебедев Михаил Викторович, \n +7 962 936 26 36"}
-,
-{"problem":"Не работает проход по карте (СКУД), турникет или шлагбаум по карте","service":"Отдел IT","contact":"Литвинов Виталий Васильевич, \n +7 958 838 80 75"}
-,
-{"problem":"Не работает видеонаблюдение, информационное табло, серверная","service":"Отдел IT","contact":"Литвинов Виталий Васильевич, \n +7 958 838 80 75"}
-,
+    <div id="resultBox" class="result-box">
+        <div class="label">Служба</div>
+        <div id="serviceValue" class="value"></div>
+
+        <div class="label">Контакты</div>
+        <div id="contactValue" class="value"></div>
+    </div>
+
+    <script>
+        // ТАБЛИЦА ДАННЫХ ИЗ EXCEL
+        // Замените примеры ниже на ваши данные из таблицы
+        const data = [
+{"problem":"Не работает погрузчик, ричтрак, тележка (рохля, штабелёр)","service":"Механики (СГМ)","contact":"Русин Александр Викторович, \n +7 915-014-12-66 \n Барышев Алексей Викторович, \n +7 968 356 21 01"},
+{"problem":"Не открываются грузовые или доковые ворота, уравнительная площадка","service":"Механики (СГМ)","contact":"Русин Александр Викторович, \n +7 915-014-12-66 \n Барышев Алексей Викторович, \n +7 968 356 21 01"},
+{"problem":"Не заряжается техника, проблема с зарядной станцией или аккумулятором","service":"Механики (СГМ)","contact":"Русин Александр Викторович, \n +7 915-014-12-66 \n Барышев Алексей Викторович, \n +7 968 356 21 01"},
+{"problem":"Не работает пресс, шредер, компактор","service":"Механики (СГМ)","contact":"Русин Александр Викторович, \n +7 915-014-12-66 \n Барышев Алексей Викторович, \n +7 968 356 21 01"},
+{"problem":"Не работает лифт в столовой","service":"Механики (СГМ)","contact":"Русин Александр Викторович, \n +7 915-014-12-66 \n Барышев Алексей Викторович, \n +7 968 356 21 01"},
+{"problem":"Не работает лифт или подъёмник на мезонине, сортер, транспортёр","service":"Конструкт. бюро (КБ)","contact":"Тихонюк Дмитрий Геннадьевич, \n +7 901 747 24 74"},
+{"problem":"Нет электричества, не работает розетка, обесточено оборудование","service":"Эксплуатация (СЭ)","contact":"Илья Александрович Орлов, \n +7 919 761 94 70\n Цветков Дмитрий Иосифович, \n +7 903 711 40 21"},
+{"problem":"Не горит свет (рабочий, аварийный, уличный, на мезонине)","service":"Эксплуатация (СЭ)","contact":"Илья Александрович Орлов, \n +7 919 761 94 70\n Цветков Дмитрий Иосифович, \n +7 903 711 40 21"},
+{"problem":"Душно, жарко или холодно — не работает вентиляция или кондиционер","service":"Эксплуатация (СЭ)","contact":"Илья Александрович Орлов, \n +7 919 761 94 70\n Цветков Дмитрий Иосифович, \n +7 903 711 40 21"},
+{"problem":"Не греет отопление, не работает тепловая завеса или тепловентилятор","service":"Эксплуатация (СЭ)","contact":"Илья Александрович Орлов, \n +7 919 761 94 70\n Цветков Дмитрий Иосифович, \n +7 903 711 40 21"},
+{"problem":"Не работает рукосушилка","service":"Эксплуатация (СЭ)","contact":"Илья Александрович Орлов, \n +7 919 761 94 70\n Цветков Дмитрий Иосифович, \n +7 903 711 40 21"},
+{"problem":"Засор или перелив наружной / ливневой канализации","service":"Эксплуатация (СЭ)","contact":"Илья Александрович Орлов, \n +7 919 761 94 70\n Цветков Дмитрий Иосифович, \n +7 903 711 40 21"},
+{"problem":"Нужно подключить новое оборудование к электричеству","service":"Эксплуатация (СЭ)","contact":"Илья Александрович Орлов, \n +7 919 761 94 70\n Цветков Дмитрий Иосифович, \n +7 903 711 40 21"},
+{"problem":"Повреждён мезонин, стеллаж, полка, лестница, ограждение мезонина","service":"Мезонин (СЭМ)","contact":"Егор Александрович Калинин, \n +7 925 208 88 29 \n Ростов Вячеслав Сергеевич,\n +7 977 830 24 36"},
+{"problem":"Сбит отбойник, защита стойки или ловушка на мезонине","service":"Мезонин (СЭМ)","contact":"Егор Александрович Калинин, \n +7 925 208 88 29 \n Ростов Вячеслав Сергеевич,\n +7 977 830 24 36"},
+{"problem":"Нужна проверка / протяжка конструкций, плановое ТО мезонина","service":"Мезонин (СЭМ)","contact":"Егор Александрович Калинин, \n +7 925 208 88 29 \n Ростов Вячеслав Сергеевич,\n +7 977 830 24 36"},
+{"problem":"Не закрывается дверь, сломан доводчик или магнит на мезонине","service":"Мезонин (СЭМ)","contact":"Егор Александрович Калинин, \n +7 925 208 88 29 \n Ростов Вячеслав Сергеевич,\n +7 977 830 24 36"},
+{"problem":"Протекает труба, засор в санузле, не работает кран, унитаз, водонагреватель","service":"Строит. служба (РСС)","contact":"Сергеев Александр Александрович, \n +7 977 299 68 77\n Графский Александр Юрьевич, \n +7 996 597 01 08"},
+{"problem":"Повреждён пол, стена, дверь, окно, плитка","service":"Строит. служба (РСС)","contact":"Сергеев Александр Александрович, \n +7 977 299 68 77\n Графский Александр Юрьевич, \n +7 996 597 01 08"},
+{"problem":"Сломана мебель — стол, стул, шкаф","service":"Строит. служба (РСС)","contact":"Сергеев Александр Александрович, \n +7 977 299 68 77\n Графский Александр Юрьевич, \n +7 996 597 01 08"},
+{"problem":"Сбит отбойник у колонны, шкафа, ворот или оборудования","service":"Строит. служба (РСС)","contact":"Сергеев Александр Александрович, \n +7 977 299 68 77\n Графский Александр Юрьевич, \n +7 996 597 01 08"},
+{"problem":"Проблема на территории — яма в асфальте, разметка, знак, ограждение","service":"Строит. служба (РСС)","contact":"Сергеев Александр Александрович, \n +7 977 299 68 77\n Графский Александр Юрьевич, \n +7 996 597 01 08"},
+{"problem":"Не работает турникет или шлагбаум (механика)","service":"Строит. служба (РСС)","contact":"Сергеев Александр Александрович, \n +7 977 299 68 77\n Графский Александр Юрьевич, \n +7 996 597 01 08"},
+{"problem":"Нужен косметический ремонт помещения","service":"Строит. служба (РСС)","contact":"Сергеев Александр Александрович, \n +7 977 299 68 77\n Графский Александр Юрьевич, \n +7 996 597 01 08"},
+{"problem":"Не закрывается дверь в складе, сломан доводчик или магнит","service":"Строит. служба (РСС)","contact":"Сергеев Александр Александрович, \n +7 977 299 68 77\n Графский Александр Юрьевич, \n +7 996 597 01 08"},
+{"problem":"Грязно, нужна уборка, не вывезли мусор или упаковку","service":"АХО","contact":"Галстян Ашот Иличевич\n +7 901 908 91 17"},
+{"problem":"Грызуны или насекомые — нужна дезинфекция / дератизация","service":"АХО","contact":"Галстян Ашот Иличевич\n +7 901 908 91 17"},
+{"problem":"Не работает поломоечная машина","service":"АХО","contact":"Галстян Ашот Иличевич\n +7 901 908 91 17"},
+{"problem":"Сработала или неисправна пожарная сигнализация, оповещение","service":"Служба ПБ","contact":"Лебедев Михаил Викторович, \n +7 962 936 26 36"},
+{"problem":"Проблема с пожарным краном, огнетушителем, пожарным шкафом","service":"Служба ПБ","contact":"Лебедев Михаил Викторович, \n +7 962 936 26 36"},
+{"problem":"Не работает проход по карте (СКУД), турникет или шлагбаум по карте","service":"Отдел IT","contact":"Литвинов Виталий Васильевич, \n +7 958 838 80 75"},
+{"problem":"Не работает видеонаблюдение, информационное табло, серверная","service":"Отдел IT","contact":"Литвинов Виталий Васильевич, \n +7 958 838 80 75"},
 {"problem":"Нужно подключить или перепрограммировать СКУД (замки, контроллеры, слаботочка)","service":"Отдел IT","contact":"Литвинов Виталий Васильевич, \n +7 958 838 80 75"}
+        ];
 
-];
+        const selectEl = document.getElementById('incidentSelect');
+        const resultBox = document.getElementById('resultBox');
+        const serviceVal = document.getElementById('serviceValue');
+        const contactVal = document.getElementById('contactValue');
 
-    const select = document.getElementById('problemSelect');
+        // Инициализация списка данными
+        data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = item.issue;
+            selectEl.appendChild(option);
+        });
 
-    // Заполняем выпадающий список (выбираем 1-й столбец)
-    database.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.situation;
-        option.textContent = item.situation;
-        select.appendChild(option);
-    });
+        // Функция отображения результата
+        function showDetails() {
+            const selectedId = parseInt(selectEl.value);
+            const selectedData = data.find(item => item.id === selectedId);
 
-    // Функция отображения данных (2-й и 3-й столбцы)
-    function showDetails() {
-        const selectedValue = select.value;
-        const resultDiv = document.getElementById('result');
-        const serviceSpan = document.getElementById('serviceValue');
-        const contactsSpan = document.getElementById('contactsValue');
+            if (selectedData) {
+                serviceVal.textContent = selectedData.service;
+                
+                // Проверяем, если контакт похож на телефон, делаем его кликабельной ссылкой
+                if (selectedData.contact.match(/[0-9]/)) {
+                    contactVal.innerHTML = `<a href="tel:${selectedData.contact.replace(/[^0-9+]/g, '')}">${selectedData.contact}</a>`;
+                } else {
+                    contactVal.textContent = selectedData.contact;
+                }
 
-        const found = database.find(item => item.situation === selectedValue);
-
-        if (found) {
-            serviceSpan.textContent = found.service;
-            contactsSpan.textContent = found.contacts;
-            resultDiv.style.display = 'block';
-        } else {
-            resultDiv.style.display = 'none';
+                resultBox.classList.add('active');
+            } else {
+                resultBox.classList.remove('active');
+            }
         }
-    }
-</script>
-
+    </script>
 </body>
 </html>
