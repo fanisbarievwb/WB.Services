@@ -195,14 +195,6 @@
                 const contactText = values[2] || '—';
 
                 serviceVal.textContent = serviceText;
-                
-                // Делаем кликабельный телефон, если в строке есть цифры
-                if (String(contactText).match(/[0-9]/)) {
-                    contactVal.innerHTML = `<a href="tel:${String(contactText).replace(/[^0-9+]/g, '')}">${contactText}</a>`;
-                } else {
-                    contactVal.textContent = contactText;
-                }
-
                 resultBox.classList.add('active');
             } else {
                 resultBox.classList.remove('active');
