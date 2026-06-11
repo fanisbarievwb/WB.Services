@@ -116,9 +116,9 @@
         <div id="contactValue" class="value"></div>
     </div>
 
-    <script>
+        <script>
         // ТАБЛИЦА ДАННЫХ ИЗ EXCEL
-        // Замените примеры ниже на ваши данные из таблицы
+        // Сюда вставьте ваш JSON, полученный после конвертации
         const data = [
 {"issue":"Не работает погрузчик, ричтрак, тележка (рохля, штабелёр)","service":"Механики (СГМ)","contact":"Русин Александр Викторович, \n +7 915-014-12-66 \n Барышев Алексей Викторович, \n +7 968 356 21 01"}
 ,
@@ -194,26 +194,46 @@
         const contactVal = document.getElementById('contactValue');
 
         // Инициализация списка данными
-        data.forEach(item => {
+        data.forEach((item, index) => {
             const option = document.createElement('option');
-            option.value = item.id;
-            option.textContent = item.issue;
+            option.value = index; // Привязываем к порядковому номеру в массиве
+            
+            // Извлекаем все текстовые значения из строки таблицы
+            const values = Object.values(item).filter(val => typeof val === 'string' || typeof val === 'number');
+            
+            // Если первое свойство "id", берем второе (текст проблемы), иначе первое
+            const issueText = typeof item.id !== 'undefined' && Object.keys(item)[0] === 'id' ? values[1] : values[0];
+            
+            option.textContent = issueText || "Без названия";
             selectEl.appendChild(option);
         });
 
         // Функция отображения результата
         function showDetails() {
-            const selectedId = parseInt(selectEl.value);
-            const selectedData = data.find(item => item.id === selectedId);
+            const selectedIndex = selectEl.value;
+            const selectedData = data[selectedIndex];
 
             if (selectedData) {
-                serviceVal.textContent = selectedData.service;
+                // Превращаем объект в массив только его значений (текста)
+                // Игнорируем техническое поле "id", если оно есть
+                let values = Object.keys(selectedData)[0] === 'id' 
+                    ? Object.values(selectedData).slice(1) 
+                    : Object.values(selectedData);
+
+                // Теперь строго распределяем по порядку:
+                // values[0] — это проблема (уже в списке)
+                // values[1] — это служба (2-й столбец)
+                // values[2] — это контакты (3-й столбец)
+                const serviceText = values[1] || '—';
+                const contactText = values[2] || '—';
+
+                serviceVal.textContent = serviceText;
                 
-                // Проверяем, если контакт похож на телефон, делаем его кликабельной ссылкой
-                if (selectedData.contact.match(/[0-9]/)) {
-                    contactVal.innerHTML = `<a href="tel:${selectedData.contact.replace(/[^0-9+]/g, '')}">${selectedData.contact}</a>`;
+                // Делаем кликабельный телефон, если в строке есть цифры
+                if (String(contactText).match(/[0-9]/)) {
+                    contactVal.innerHTML = `<a href="tel:${String(contactText).replace(/[^0-9+]/g, '')}">${contactText}</a>`;
                 } else {
-                    contactVal.textContent = selectedData.contact;
+                    contactVal.textContent = contactText;
                 }
 
                 resultBox.classList.add('active');
@@ -222,5 +242,6 @@
             }
         }
     </script>
+
 </body>
 </html>
